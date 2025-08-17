@@ -1,7 +1,13 @@
+import formIcon from "@/assets/form.png";
 import { Handle, Position } from "@xyflow/react";
-import formIcon from "../assets/form.png";
 
-export const GraphNode = ({ data }: { data: { label: string } }) => {
+interface GraphNodeProps {
+  data: {
+    label: string;
+  };
+}
+
+export const GraphNode = ({ data }: GraphNodeProps) => {
   return (
     <div className="flex items-center justify-start gap-3 bg-white rounded-md p-2 border w-64">
       <div className="w-10 h-10">

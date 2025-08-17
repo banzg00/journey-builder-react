@@ -1,10 +1,9 @@
-import { DataOption, DependencyData, GlobalData } from "@/types/internal";
-
-export interface DataSection {
-  title: string;
-  type: "direct" | "transitive" | "global";
-  options: DataOption[];
-}
+import {
+  DataSection,
+  DataSectionType,
+  DependencyData,
+  GlobalData,
+} from "@/types/internal";
 
 /**
  * Helper function to format field labels from snake_case to Title Case
@@ -25,10 +24,9 @@ export const buildDataSections = (
 ): DataSection[] => {
   const sections: DataSection[] = [];
 
-  // Global Data - Action Properties Section (AT THE TOP)
   sections.push({
     title: "Action Properties",
-    type: "global",
+    type: DataSectionType.GLOBAL,
     options: Object.keys(globalData.actionProperties).map((key) => ({
       label: formatFieldLabel(key),
       value: `action.${key}`,
@@ -36,10 +34,9 @@ export const buildDataSections = (
     })),
   });
 
-  // Global Data - Client Organization Properties Section (SECOND)
   sections.push({
     title: "Client Organization Properties",
-    type: "global",
+    type: DataSectionType.GLOBAL,
     options: Object.keys(globalData.clientOrganizationProperties).map(
       (key) => ({
         label: formatFieldLabel(key),
@@ -49,12 +46,11 @@ export const buildDataSections = (
     ),
   });
 
-  // Direct Dependencies Section
   if (dependencyData.directDependencies.length > 0) {
     dependencyData.directDependencies.forEach((form) => {
       sections.push({
         title: form.nodeName,
-        type: "direct",
+        type: DataSectionType.DIRECT,
         options: form.formFields.map((field) => ({
           label: field,
           value: `${form.nodeId}.${field}`,
@@ -64,12 +60,11 @@ export const buildDataSections = (
     });
   }
 
-  // Transitive Dependencies Section
   if (dependencyData.transitiveDependencies.length > 0) {
     dependencyData.transitiveDependencies.forEach((form) => {
       sections.push({
         title: form.nodeName,
-        type: "transitive",
+        type: DataSectionType.TRANSITIVE,
         options: form.formFields.map((field) => ({
           label: field,
           value: `${form.nodeId}.${field}`,

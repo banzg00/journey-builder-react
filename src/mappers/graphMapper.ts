@@ -32,7 +32,6 @@ const getFormFields = (forms: Form[], node: NodeDto) => {
   return Object.keys(form?.field_schema.properties || {});
 };
 
-// Get direct dependencies (prerequisites)
 const getDirectDependencies = (
   node: NodeDto,
   allNodes: NodeDto[],
@@ -51,7 +50,6 @@ const getDirectDependencies = (
   });
 };
 
-// Get transitive dependencies (excluding direct ones)
 const getTransitiveDependencies = (
   node: NodeDto,
   allNodes: NodeDto[],
@@ -95,7 +93,6 @@ const getTransitiveDependencies = (
   return transitiveDeps;
 };
 
-// Get all dependency data structured by type
 const getAllDependencyForms = (
   node: NodeDto,
   allNodes: NodeDto[],

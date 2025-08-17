@@ -38,3 +38,15 @@ export interface GraphNodeData {
   dependencyData: DependencyData;
   fieldMappings: Record<string, FieldMapping>;
 }
+
+export interface DataSection {
+  title: string;
+  type: DataSectionType;
+  options: DataOption[];
+}
+
+export enum DataSectionType {
+  DIRECT = "direct",
+  TRANSITIVE = "transitive",
+  GLOBAL = "global",
+}

@@ -1,4 +1,5 @@
 import { getActionBlueprintGraph } from "./api/action-blueprint-graph/api";
+import { type Form, type NodeDto } from "./api/action-blueprint-graph/dto";
 
 import {
   addEdge,
@@ -11,18 +12,22 @@ import {
   type EdgeChange,
   type Node,
   type NodeChange,
+  type NodeMouseHandler,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useCallback, useEffect, useState } from "react";
 import { GraphNode } from "./components/graph-node";
+import { PrefillForm } from "./components/prefill-form";
 
 const nodeTypes = {
-  graphNode: GraphNode,
+  form: GraphNode,
 };
 
 function App() {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const getData = async () => {
     const data = await getActionBlueprintGraph();
@@ -35,9 +40,12 @@ function App() {
       setNodes(
         data.nodes.map((node) => ({
           id: node.id,
-          position: { x: node.position.x, y: node.position.y },
-          data: { label: node.data.name },
-          type: "graphNode",
+          position: node.position,
+          data: {
+            label: node.data.name,
+            formFields: getFormFields(data.forms, node),
+          },
+          type: node.type,
         }))
       );
       setEdges(
@@ -51,6 +59,11 @@ function App() {
 
     fetchData();
   }, []);
+
+  const getFormFields = (forms: Form[], node: NodeDto) => {
+    const form = forms.find((form) => form.id === node.data.component_id);
+    return Object.keys(form?.field_schema.properties || {});
+  };
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) =>
@@ -67,6 +80,10 @@ function App() {
       setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
     []
   );
+  const onNodeClick: NodeMouseHandler = useCallback((_, node) => {
+    setSelectedNode(node);
+    setIsDialogOpen(true);
+  }, []);
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
@@ -77,10 +94,18 @@ function App() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onNodeClick={onNodeClick}
         fitView
       >
         <Background />
       </ReactFlow>
+      {selectedNode && (
+        <PrefillForm
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          data={selectedNode.data as { formFields: string[] }}
+        />
+      )}
     </div>
   );
 }

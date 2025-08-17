@@ -6,7 +6,7 @@ export interface ActionBlueprintGraphDto {
   forms: Form[];
   id: string;
   name: string;
-  nodes: Node[];
+  nodes: NodeDto[];
   tenant_id: string;
 }
 
@@ -15,7 +15,7 @@ export interface Edge {
   target: string;
 }
 
-interface Form {
+export interface Form {
   description: string;
   dynamic_field_config: Record<string, DynamicFieldConfig>;
   field_schema: FieldSchema;
@@ -67,7 +67,7 @@ interface UiSchemaElement {
   options?: Record<string, unknown>;
 }
 
-interface Node {
+export interface NodeDto {
   id: string;
   data: NodeData;
   position: Position;
@@ -79,7 +79,7 @@ interface Position {
   y: number;
 }
 
-interface NodeData {
+export interface NodeData {
   approval_required: boolean;
   component_id: string;
   component_key: string;

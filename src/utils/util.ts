@@ -20,59 +20,90 @@ export const formatFieldLabel = (key: string): string => {
  */
 export const buildDataSections = (
   dependencyData: DependencyData,
-  globalData: GlobalData
+  globalData: GlobalData,
+  activeFilters?: DataSectionType[]
 ): DataSection[] => {
-  const sections: DataSection[] = [];
+  const sections = [];
 
-  sections.push({
-    title: "Action Properties",
-    type: DataSectionType.GLOBAL,
-    options: Object.keys(globalData.actionProperties).map((key) => ({
-      label: formatFieldLabel(key),
-      value: `action.${key}`,
-      source: "Action Properties",
-    })),
-  });
-
-  sections.push({
-    title: "Client Organization Properties",
-    type: DataSectionType.GLOBAL,
-    options: Object.keys(globalData.clientOrganizationProperties).map(
-      (key) => ({
-        label: formatFieldLabel(key),
-        value: `organization.${key}`,
-        source: "Client Organization Properties",
-      })
-    ),
-  });
-
-  if (dependencyData.directDependencies.length > 0) {
-    dependencyData.directDependencies.forEach((form) => {
-      sections.push({
-        title: form.nodeName,
-        type: DataSectionType.DIRECT,
-        options: form.formFields.map((field) => ({
-          label: field,
-          value: `${form.nodeId}.${field}`,
-          source: form.nodeName,
-        })),
-      });
-    });
+  if (!activeFilters || activeFilters.length === 0) {
+    for (const key in DataSectionType) {
+      const dataSections = getSections(
+        dependencyData,
+        globalData,
+        key as DataSectionType
+      );
+      sections.push(...dataSections);
+    }
+    return sections;
   }
 
-  if (dependencyData.transitiveDependencies.length > 0) {
-    dependencyData.transitiveDependencies.forEach((form) => {
-      sections.push({
-        title: form.nodeName,
-        type: DataSectionType.TRANSITIVE,
-        options: form.formFields.map((field) => ({
-          label: field,
-          value: `${form.nodeId}.${field}`,
-          source: form.nodeName,
-        })),
-      });
-    });
+  for (const activeFilter of activeFilters!) {
+    const dataSections = getSections(dependencyData, globalData, activeFilter);
+    sections.push(...dataSections);
   }
 
   return sections;
+};
+
+const getSections = (
+  dependencyData: DependencyData,
+  globalData: GlobalData,
+  sectionType: DataSectionType
+): DataSection[] => {
+  const sectionData: DataSection[] = [];
+
+  const sectionHandler = {
+    [DataSectionType.GLOBAL]: () => {
+      sectionData.push({
+        title: "Action Properties",
+        type: DataSectionType.GLOBAL,
+        options: Object.keys(globalData.actionProperties).map((key) => ({
+          label: formatFieldLabel(key),
+          value: `action.${key}`,
+          source: "Action Properties",
+        })),
+      });
+
+      sectionData.push({
+        title: "Client Organization Properties",
+        type: DataSectionType.GLOBAL,
+        options: Object.keys(globalData.clientOrganizationProperties).map(
+          (key) => ({
+            label: formatFieldLabel(key),
+            value: `organization.${key}`,
+            source: "Client Organization Properties",
+          })
+        ),
+      });
+    },
+    [DataSectionType.DIRECT]: () => {
+      dependencyData.directDependencies.forEach((form) => {
+        sectionData.push({
+          title: form.nodeName,
+          type: DataSectionType.DIRECT,
+          options: form.formFields.map((field) => ({
+            label: field,
+            value: `${form.nodeId}.${field}`,
+            source: form.nodeName,
+          })),
+        });
+      });
+    },
+    [DataSectionType.TRANSITIVE]: () => {
+      dependencyData.transitiveDependencies.forEach((form) => {
+        sectionData.push({
+          title: form.nodeName,
+          type: DataSectionType.TRANSITIVE,
+          options: form.formFields.map((field) => ({
+            label: field,
+            value: `${form.nodeId}.${field}`,
+            source: form.nodeName,
+          })),
+        });
+      });
+    },
+  };
+
+  sectionHandler[sectionType]();
+  return sectionData;
 };

@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useActionBlueprintGraph } from "@/context/actionBlueprintGraphContext";
-import { DataOption, DependencyData } from "@/types/internal";
+import { DataOption, DataSectionType, DependencyData } from "@/types/internal";
 import { buildDataSections } from "@/utils/util";
 
 interface FieldSelectionModalProps {
@@ -31,7 +31,15 @@ export function FieldSelectionModal({
   dependencyData,
 }: FieldSelectionModalProps) {
   const { state } = useActionBlueprintGraph();
-  const dataSections = buildDataSections(dependencyData, state.globalData);
+  const queryParams = new URLSearchParams(window.location.search);
+  const filtersStr = queryParams.get("filters");
+  const filters = filtersStr?.split(",");
+
+  const dataSections = buildDataSections(
+    dependencyData,
+    state.globalData,
+    filters as DataSectionType[]
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

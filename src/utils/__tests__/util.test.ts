@@ -1,4 +1,8 @@
-import type { DependencyData, GlobalData } from "@/types/internal";
+import {
+  DataSectionType,
+  type DependencyData,
+  type GlobalData,
+} from "@/types/internal";
 import { describe, expect, it } from "vitest";
 import { buildDataSections, formatFieldLabel, type DataSection } from "../util";
 
@@ -492,6 +496,23 @@ describe("Util Functions", () => {
 
       expect(result1).toEqual(result2);
       expect(result1).not.toBe(result2); // Should be different objects
+    });
+  });
+
+  describe("Builder Function", () => {
+    it("should return all the sections", () => {
+      const result = buildDataSections(mockDependencyData, mockGlobalData);
+      expect(result.length).toEqual(6);
+    });
+
+    it("should return direct", () => {
+      const activeFilters = [DataSectionType.DIRECT];
+      const result = buildDataSections(
+        mockDependencyData,
+        mockGlobalData,
+        activeFilters
+      );
+      expect(result.length).toEqual(2);
     });
   });
 });
